@@ -23,7 +23,11 @@ function addItem() {
         listItem.appendChild(label);
 
         // Adiciona o item à lista de compras
-        document.getElementById('shopping-list').appendChild(listItem);
+        const shoppingList = document.getElementById('shopping-list');
+        shoppingList.appendChild(listItem);
+
+        // Salva no Local Storage
+        saveToLocalStorage();
 
         // Limpa o campo de entrada
         itemInput.value = "";
@@ -33,10 +37,43 @@ function addItem() {
     }
 }
 
-// Função para limpar a lista (agora fora da função addItem)
+function loadFromLocalStorage() {
+    const shoppingList = document.getElementById('shopping-list');
+    const savedItems = JSON.parse(localStorage.getItem('shoppingList')) || [];
+
+    savedItems.forEach(item => {
+        const listItem = document.createElement('li');
+
+        const label = document.createElement('label');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = item.checked;
+
+        const span = document.createElement('span');
+        span.textContent = item.text;
+
+        label.appendChild(checkbox);
+        label.appendChild(span);
+        listItem.appendChild(label);
+        shoppingList.appendChild(listItem);
+    });
+}
+
+function saveToLocalStorage() {
+    const shoppingList = document.getElementById('shopping-list');
+    const items = Array.from(shoppingList.children).map(listItem => {
+        const checkbox = listItem.querySelector('input[type="checkbox"]');
+        const span = listItem.querySelector('span');
+        return { text: span.textContent, checked: checkbox.checked };
+    });
+
+    localStorage.setItem('shoppingList', JSON.stringify(items));
+}
+
 function clearList() {
     const shoppingList = document.getElementById('shopping-list');
-
-    // Remove todos os itens da lista
     shoppingList.innerHTML = "";
+    localStorage.removeItem('shoppingList');
 }
+
+document.addEventListener('DOMContentLoaded', loadFromLocalStorage);
